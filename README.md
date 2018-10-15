@@ -12,6 +12,8 @@ $ git shortlog
 $ git diff
 $ git status
 
+$ git clone https://github.com/cshyun7015/ML.git
+
   $  git add CodingTheMatrix/
   
   $  git commit -m "CodingTheMatrix"
