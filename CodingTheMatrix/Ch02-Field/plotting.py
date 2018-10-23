@@ -14,7 +14,7 @@ import atexit
 
 _browser = None
 
-def plot(L, scale=4, dot_size = 3, browser=None):
+def plot(L, scale=4, dot_size = 3, browser=None, title=''):
     """ plot takes a list of points, optionally a scale (relative to a 200x200 frame),
         optionally a dot size (diameter) in pixels, and optionally a browser name.
         It produces an html file with SVG representing the given plot,
@@ -27,7 +27,7 @@ def plot(L, scale=4, dot_size = 3, browser=None):
         h.writelines(
             ['<!DOCTYPE html>\n'
             ,'<head>\n'
-            ,'<title>plot</title>\n'
+            ,'<title>' + title + '</title>\n'
             ,'</head>\n'
             ,'<body>\n'
             ,'<svg height="420" width=420 xmlns="http://www.w3.org/2000/svg">\n'
