@@ -91,11 +91,7 @@ def add(A, B):
     >>> C1 + C2 == D
     True
     """
-    assert A.D == B.D
-    #m = Mat(A.D, A.f)
-    #m.f = {key:getitem(m, key)+getitem(A, key) for key, value in A.f.items()}
-    #m.f = {key:getitem(m, key)+getitem(B, key) for key, value in B.f.items()}
-    
+    assert A.D == B.D    
     return Mat(A.D, {(i,j):A[(i,j)]+B[(i,j)] for i in A.D[0] for j in A.D[1] if A[(i,j)]+B[(i,j)] != 0})
 
 def scalar_mul(M, x):
@@ -188,52 +184,6 @@ def matrix_vector_mul(M, v):
             u[i] = u[i] + M[(i,j)]*v[j] 
     return u
 
-def mat2rowdict(A):
-    """Given a matrix, return a dictionary mapping row labels of A to rows of A
-    e.g.:
-
-    >>> M = Mat(({0, 1, 2}, {0, 1}), {(0, 1): 1, (2, 0): 8, (1, 0): 4, (0, 0): 3, (2, 1): -2})
-    >>> mat2rowdict(M)
-    {0: Vec({0, 1},{0: 3, 1: 1}), 1: Vec({0, 1},{0: 4, 1: 0}), 2: Vec({0, 1},{0: 8, 1: -2})}
-    >>> mat2rowdict(Mat(({0,1},{0,1}),{}))
-    {0: Vec({0, 1},{0: 0, 1: 0}), 1: Vec({0, 1},{0: 0, 1: 0})}
-    """
-    return {row:Vec(A.D[1], {col:A[row,col] for col in A.D[1]}) for row in A.D[0]}
-
-def keys(d):
-    """Given a dict, returns something that generates the keys; given a list,
-       returns something that generates the indices.  Intended for coldict2mat and rowdict2mat.
-    """
-    return d.keys() if isinstance(d, dict) else range(len(d))
-
-def value(d):
-    """Given either a dict or a list, returns one of the values.
-       Intended for coldict2mat and rowdict2mat.
-    """
-    return next(iter(d.values())) if isinstance(d, dict) else d[0]
-
-def rowdict2mat(rowdict):
-    """
-    Given a dictionary or list whose values are Vecs, returns the Mat having these
-    Vecs as its rows.  This is the inverse of mat2rowdict.
-    Assumes all the Vecs have the same label-set.
-    Assumes row_dict is nonempty.
-    If rowdict is a dictionary then its keys will be the row-labels of the Mat.
-    If rowdict is a list then {0...len(rowdict)-1} will be the row-labels of the Mat.
-    e.g.:
-
-    >>> A = {0:Vec({0,1},{0:1,1:2}),1:Vec({0,1},{0:3,1:4})}
-    >>> B = [Vec({0,1},{0:1,1:2}),Vec({0,1},{0:3,1:4})]
-    >>> mat2rowdict(rowdict2mat(A)) == A
-    True
-    >>> rowdict2mat(A)
-    Mat(({0, 1}, {0, 1}), {(0, 1): 2, (1, 0): 3, (0, 0): 1, (1, 1): 4})
-    >>> rowdict2mat(A) == rowdict2mat(B)
-    True
-    """
-    col_labels = value(rowdict).D
-    return Mat((set(keys(rowdict)), col_labels), {(r,c):rowdict[r][c] for r in keys(rowdict) for c in col_labels})
-
 def matrix_matrix_mul(A, B):
     """
     Returns the result of the matrix-matrix multiplication, A*B.
@@ -262,9 +212,10 @@ def matrix_matrix_mul(A, B):
     """
     assert A.D[1] == B.D[0]
 
-    dic_A = mat2rowdict(A)
-    dic_m = {key:vector_matrix_mul(value,B) for key, value in dic_A.items()}
-    return rowdict2mat(dic_m)
+    dic_B = {col:Vec(B.D[0], {row:B[row,col] for row in B.D[0]}) for col in B.D[1]}
+    dic_m = {k:A*v for k,v in dic_B.items()}
+    row_labels = A.D[0]
+    return Mat((row_labels, set(dic_m.keys())), {(r,c):dic_m[c][r] for c in dic_m.keys() for r in row_labels})
 
 ################################################################################
 
